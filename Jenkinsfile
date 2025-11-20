@@ -1,22 +1,27 @@
 ﻿pipeline {
     agent any
+
     environment {
         AWS_REGION = "ap-south-1"
         ECR_REPO = "394811801190.dkr.ecr.ap-south-1.amazonaws.com/ci-cd-app"
         IMAGE_TAG = "latest"
         EC2_IP = "13.234.78.17"
     }
+
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
+
         stage('Install Dependencies') {
             steps {
                 sh 'npm install'
             }
         }
+
         stage('Build Docker Image') {
             steps {
                 script {
@@ -24,6 +29,7 @@
                 }
             }
         }
+
         stage('Login to ECR') {
             steps {
                 withAWS(credentials: 'aws-creds', region: "${AWS_REGION}") {
@@ -34,6 +40,7 @@
                 }
             }
         }
+
         stage('Push to ECR') {
             steps {
                 script {
@@ -41,6 +48,7 @@
                 }
             }
         }
+
         stage('Deploy to EC2') {
             steps {
                 sshagent (credentials: ['ec2-ssh']) {
