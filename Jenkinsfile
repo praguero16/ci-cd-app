@@ -51,7 +51,8 @@ pipeline {
 
         stage("Deploy to EC2") {
     		steps {
-        		withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh', keyFileVariable: 'SSH_KEY')]) {
+        		withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY')]) {
+
         			bat """
                 			rem --- FIX WINDOWS SSH KEY PERMISSIONS ---
                 			icacls %SSH_KEY% /inheritance:r
