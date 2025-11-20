@@ -56,8 +56,11 @@ pipeline {
         			bat """
                 			rem --- FIX WINDOWS SSH KEY PERMISSIONS ---
                 			icacls %SSH_KEY% /inheritance:r
-                			icacls %SSH_KEY% /grant:r "%USERNAME%:F"
                 			icacls %SSH_KEY% /grant:r "Administrators:F"
+
+					rem --- LOGIN TO ECR ON EC2 ---
+                			ssh -o StrictHostKeyChecking=no -i %SSH_KEY% ubuntu@%EC2_IP% "aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 394811801190.dkr.ecr.ap-south-1.amazonaws.com"
+
 
 			                rem --- DEPLOY TO EC2 ---
                 			ssh -o StrictHostKeyChecking=no -i %SSH_KEY% ubuntu@${EC2_IP} "docker pull ${ECR_REPO}:${IMAGE_TAG}"
