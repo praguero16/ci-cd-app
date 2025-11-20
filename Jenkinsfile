@@ -50,16 +50,17 @@ pipeline {
         }
 
         stage("Deploy to EC2") {
-            steps {
-                sshagent(credentials: ['ec2-ssh']) {
-                    bat """
-                        ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% "docker pull %ECR_REPO%:%IMAGE_TAG%"
-                        ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% "docker stop ci-cd-app || true"
-                        ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% "docker rm ci-cd-app || true"
-                        ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% "docker run -d -p 80:3000 --name ci-cd-app %ECR_REPO%:%IMAGE_TAG%"
-                    """
-                }
-            }
-        }
+    		steps {
+        		withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh', keyFileVariable: 'SSH_KEY')]) {
+        			bat """
+                			ssh -i %SSH_KEY% -o StrictHostKeyChecking=no ubuntu@${EC2_IP} "docker pull ${ECR_REPO}:${IMAGE_TAG}"
+                			ssh -i %SSH_KEY% -o StrictHostKeyChecking=no ubuntu@${EC2_IP} "docker stop ci-cd-app || true"
+                			ssh -i %SSH_KEY% -o StrictHostKeyChecking=no ubuntu@${EC2_IP} "docker rm ci-cd-app || true"
+                			ssh -i %SSH_KEY% -o StrictHostKeyChecking=no ubuntu@${EC2_IP} "docker run -d -p 80:3000 --name ci-cd-app ${ECR_REPO}:	${IMAGE_TAG}"
+	            		"""
+        		}
+		}
+	}
+
     }
 }
