@@ -1,4 +1,4 @@
-﻿pipeline {
+pipeline {
     agent any
 
     environment {
@@ -18,7 +18,7 @@
 
         stage("Install Dependencies") {
             steps {
-                echo "Skipping npm install — handled inside Dockerfile"
+                echo "Skipping npm install ? handled inside Dockerfile"
             }
         }
 
