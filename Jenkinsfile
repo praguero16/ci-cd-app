@@ -18,7 +18,7 @@
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
+                bat 'npm install'
             }
         }
 
@@ -33,10 +33,10 @@
         stage('Login to ECR') {
             steps {
                 withAWS(credentials: 'aws-creds', region: "${AWS_REGION}") {
-                    sh '''
-                        aws ecr get-login-password --region $AWS_REGION \
-                        | docker login --username AWS --password-stdin $ECR_REPO
-                    '''
+                    bat """
+                        aws ecr get-login-password --region %AWS_REGION% ^
+                        | docker login --username AWS --password-stdin %ECR_REPO%
+                    """
                 }
             }
         }
@@ -52,14 +52,12 @@
         stage('Deploy to EC2') {
             steps {
                 sshagent (credentials: ['ec2-ssh']) {
-                    sh '''
-                        ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "
-                            docker pull ${ECR_REPO}:${IMAGE_TAG} &&
-                            docker stop ci-cd-app || true &&
-                            docker rm ci-cd-app || true &&
-                            docker run -d -p 80:3000 --name ci-cd-app ${ECR_REPO}:${IMAGE_TAG}
-                        "
-                    '''
+                    bat """
+                        ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% "docker pull %ECR_REPO%:%IMAGE_TAG%"
+                        ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% "docker stop ci-cd-app || true"
+                        ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% "docker rm ci-cd-app || true"
+                        ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% "docker run -d -p 80:3000 --name ci-cd-app %ECR_REPO%:%IMAGE_TAG%"
+                    """
                 }
             }
         }
