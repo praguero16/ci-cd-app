@@ -10,19 +10,19 @@
 
     stages {
 
-        stage('Checkout') {
+        stage("Checkout") {
             steps {
                 checkout scm
             }
         }
 
-        stage('Install Dependencies') {
+        stage("Install Dependencies") {
             steps {
-                bat 'npm install'
+                bat "npm install"
             }
         }
 
-        stage('Build Docker Image') {
+        stage("Build Docker Image") {
             steps {
                 script {
                     dockerImage = docker.build("${ECR_REPO}:${IMAGE_TAG}")
@@ -30,7 +30,7 @@
             }
         }
 
-        stage('Login to ECR') {
+        stage("Login to ECR") {
             steps {
                 withAWS(credentials: 'aws-creds', region: "${AWS_REGION}") {
                     bat """
@@ -41,7 +41,7 @@
             }
         }
 
-        stage('Push to ECR') {
+        stage("Push to ECR") {
             steps {
                 script {
                     dockerImage.push()
@@ -49,9 +49,9 @@
             }
         }
 
-        stage('Deploy to EC2') {
+        stage("Deploy to EC2") {
             steps {
-                sshagent (credentials: ['ec2-ssh']) {
+                sshagent(credentials: ['ec2-ssh']) {
                     bat """
                         ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% "docker pull %ECR_REPO%:%IMAGE_TAG%"
                         ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% "docker stop ci-cd-app || true"
