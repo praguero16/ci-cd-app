@@ -5,7 +5,7 @@ pipeline {
         AWS_REGION = "ap-south-1"
         ECR_REPO = "394811801190.dkr.ecr.ap-south-1.amazonaws.com/ci-cd-app"
         IMAGE_TAG = "latest"
-        EC2_IP = "13.234.78.17"
+        EC2_IP = "15.206.81.126"
     }
 
     stages {
